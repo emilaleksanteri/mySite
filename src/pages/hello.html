@@ -7,51 +7,30 @@
 	<script src="https://unpkg.com/htmx.org@1.9.3"
 		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
 		crossorigin="anonymous"></script>
-	<style>
-		body {
-			background-color: rgb(24 24 27);
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-
-		}
-
-		h1,
-		h2,
-		p {
-			color: rgb(244 244 245);
-		}
-
-		.barIcon {
-			width: 50px;
-			height: 50px;
-		}
-	</style>
+	<link href="../dist/output.css" rel="stylesheet">
 </head>
 
-<body>
-	<div
-		style="padding: 2rem; gap: 20px; width: 100vw; border-bottom: 2px solid;  border-color: rgb(82 82 91); display: flex; justify-content: center ; align-items: center; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);">
+<body class="text-zinc-50 bg-zinc-800 w-screen">
+	<div class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-center gap-2">
 		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-			stroke="rgb(244 244 245)" class="barIcon">
+			stroke="rgb(244 244 245)" class="w-12 h-12">
 			<path stroke-linecap="round" stroke-linejoin="round"
 				d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
 		</svg>
-		<h1 style="font-size: 40px; text-align: center;">Emil Lystimaki is learning Go</h1>
+		<h1 class="text-2xl text-zinc-50 font-bold">Emil Lystimaki is learning Go</h1>
 	</div>
 	<div>
-		<p style="font-size: 40px; padding: 2em; background-color: rgb(24 24 27); height: fit-content;">
+		<p class="text-center mt-4 font-medium text-xl">
 			Welcome to my Go page, more coming soon!
 		</p>
-		<ul>
+		<ul class="w-full flex flex-col justify-center items-center mt-6">
 			{{ range .testData }}
 			<li>
 				<p>{{ .Heading }} - {{ .Body }}</p>
 			</li>
 			{{ end }}
 		</ul>
-		<div hx-put="/test">
+		<div hx-put="/test" class="w-full text-center mt-10">
 			Click to add elements
 		</div>
 	</div>
