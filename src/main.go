@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -45,6 +46,23 @@ func getProjectById(id string) Project {
 	}
 
 	return project
+}
+
+func resume(res http.ResponseWriter, req *http.Request) {
+	resume, err := os.Open("cv/emil-lystimaki-cv.pdf")
+	if err != nil {
+		fmt.Println("Could not get cv")
+	}
+	defer resume.Close()
+
+	res.Header().Set(
+		"Content-Type",
+		"application/pdf",
+	)
+	if _, err := io.Copy(res, resume); err != nil {
+		fmt.Println("Could not serve resume bruh moment")
+		res.WriteHeader(500)
+	}
 }
 
 type Blog struct {
@@ -197,6 +215,7 @@ func main() {
 	http.HandleFunc("/seemore", seeMore)
 	http.HandleFunc("/seeless", seeLess)
 	http.HandleFunc("/blogs", blogs)
+	http.HandleFunc("/resume", resume)
 	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		fmt.Println(err)
