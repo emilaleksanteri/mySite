@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Home 🏡</title>
+	<title>Blogs 📝</title>
 	<script src="https://unpkg.com/htmx.org@1.9.3"
 		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
 		crossorigin="anonymous"></script>
@@ -23,38 +23,23 @@
 		</div>
 		<ul class="flex items-center justify-center gap-10 text-xl">
 		    <li class="hover:text-sky-400">
-			<a href="/blogs">Blogs</a>
+			<a href="/">Home</a>
 		    </li>
 		    <li class="hover:text-emerald-400">
 			<a href="/resume">Resume</a>
 		    </li>
 		</ul>
 	</div>
-	<div class="w-screen flex flex-col gap-10 items-center">
-		<h2 class="mt-10 text-2xl font-semibold mr-[36%]">
-			Projects
-		</h2>
-		<ul class="flex flex-col gap-10 w-full items-center">
-			{{ range .projects }}
-			<li class="border-2 border-zinc-100 w-[40%] rounded-md p-4 drop-shadow-lg" id={{ .Id }}>
-				<section class="flex flex-col gap-2">
-					<h3 class="text-xl font-medium mb-4">{{ .ProjectTitle }}</h3>
-					<p>{{ .ShortSummary }}</p>
-				</section>
-				<div class="flex items-center justify-between mt-6">
-					<a href={{ .Url }}
-						class="capitalize px-6 py-2 bg-zinc-100 text-zinc-800 font-medium text-center w-fit rounded-md">
-						Link To Project
-					</a>
-					<button hx-get="/seemore?id={{.Id}}" hx-target="#{{ .Id }}" hx-swap="outerHTML"
-						class="capitalize px-6 py-2 border-2 border-zinc-100 font-medium text-center w-fit rounded-md">See
-						More
-					</button>
-				</div>
+	<section class="flex w-screen flex-col items-center justify-center">
+		<h2 class="my-8 text-2xl font-medium">Blogs</h2>
+		<ul class="w-full flex flex-col items-center">
+		{{ range .blogs }}
+			<li class="p-6 flex rounded-md drop-shadow-lg items-center justify-between w-[40%] border-2 border-zinc-100">
+				<p class="text-2xl font-medium">{{ .Title }}</p>
+				<img class="w-52 h-52 object-cover rounded-md" src={{ .Thumbnail }} href="Thumbnail for this blog..."/>
 			</li>
-			{{ end }}
+		{{ end }}
 		</ul>
-	</div>
+	</section>
 </body>
-
 </html>

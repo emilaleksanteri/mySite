@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type Project struct {
@@ -43,16 +47,69 @@ func getProjectById(id string) Project {
 	return project
 }
 
+type Blog struct {
+	Thumbnail string
+	Title     string
+	Text      string
+	Id        string
+}
+
+func blogs(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set(
+		"Content-Type",
+		"text/html",
+	)
+
+	files, err := ioutil.ReadDir("blogs")
+	if err != nil {
+		fmt.Errorf("No blogs in blogs dir")
+	}
+
+	var blogs []Blog
+	for _, blog := range files {
+		blo := Blog{}
+		blo.Id = blog.Name()
+
+		filePath := "blogs/" + blog.Name()
+		openFile, err := os.Open(filePath)
+		if err != nil {
+			fmt.Errorf("Not able to read file at=%T", filePath)
+		}
+		defer openFile.Close()
+
+		var text []string
+		scanner := bufio.NewScanner(openFile)
+		lineNum := 0
+		for scanner.Scan() {
+			switch lineNum {
+			case 0:
+				blo.Thumbnail = scanner.Text()
+			case 1:
+				blo.Title = scanner.Text()
+			default:
+				text = append(text, scanner.Text())
+			}
+			lineNum += 1
+		}
+		blo.Text = strings.Join(text, " ")
+		blogs = append(blogs, blo)
+	}
+
+	template := template.Must(template.ParseFiles("pages/blogs.html"))
+	responseData := map[string][]Blog {
+		"blogs": blogs,
+	}
+
+	template.Execute(res, responseData)
+}
+
 func seeLess(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set(
 		"Content-Type",
 		"text/html",
 	)
 
-	ids, err := req.URL.Query()["id"]
-	if err {
-		fmt.Errorf("Id missing from url params!")
-	}
+	ids := req.URL.Query()["id"]
 
 	id := ids[0]
 	project := getProjectById(id)
@@ -79,7 +136,7 @@ func seeMore(res http.ResponseWriter, req *http.Request) {
 	}
 
 	id := ids[0]
-	
+
 	project := getProjectById(id)
 	template := template.Must(template.ParseFiles("responses/seeMore.html"))
 	responseData := map[string]interface{}{
@@ -139,6 +196,7 @@ func main() {
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/seemore", seeMore)
 	http.HandleFunc("/seeless", seeLess)
+	http.HandleFunc("/blogs", blogs)
 	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		fmt.Println(err)
