@@ -73,6 +73,56 @@ type Blog struct {
 	Id        string
 }
 
+func blog(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set(
+		"Content-Type",
+		"text/html",
+	)
+
+	ids := req.URL.Query()["id"]
+
+	id := ids[0]
+	fileName := "blogs/" + id
+	openFile, err := os.Open(fileName)
+	if err != nil {
+		fmt.Errorf("Not able to read file at=%T", fileName)
+	}
+
+	defer openFile.Close()
+
+	blo := Blog{}
+	blo.Id = id
+
+	var text []string
+	scanner := bufio.NewScanner(openFile)
+	lineNum := 0
+	for scanner.Scan() {
+		switch lineNum {
+		case 0:
+			blo.Thumbnail = scanner.Text()
+		case 1:
+			blo.Title = scanner.Text()
+		case 2:
+			blo.Preview = scanner.Text()
+		default:
+			text = append(text, scanner.Text())
+		}
+		lineNum += 1
+	}
+	blo.Text = strings.Join(text, " ")
+
+	template := template.Must(template.ParseFiles("pages/blog.html"))
+	responseData := map[string]interface{}{
+		"Title": blo.Title,
+		"Id": blo.Id,
+		"Text": blo.Text,
+		"Thumbnail": blo.Thumbnail,
+	}
+
+	template.Execute(res, responseData)
+
+}
+
 func blogs(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set(
 		"Content-Type",
@@ -205,11 +255,9 @@ func hello(res http.ResponseWriter, req *http.Request) {
 
 func main() {
 	// TOTO PLAN
-	// 1. ADD markdown files for projects
-	// 2. ADD summary markdown files to test data
-	// 3. Display summaries in blocks on page
-	// 4. Fetch to get more detail on project based on id
-	// 5. Add links to socials?
+	// 1. markdown to html parser
+	// 2. pass blog markdown files through parser to get HTML
+	// 3. serve html into page
 
 	fileServe := http.FileServer(http.Dir("."))
 	http.Handle("/pages", http.StripPrefix("/", fileServe))
@@ -219,6 +267,7 @@ func main() {
 	http.HandleFunc("/seeless", seeLess)
 	http.HandleFunc("/blogs", blogs)
 	http.HandleFunc("/resume", resume)
+	http.HandleFunc("/blog", blog)
 	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		fmt.Println(err)
