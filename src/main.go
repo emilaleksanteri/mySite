@@ -68,6 +68,7 @@ func resume(res http.ResponseWriter, req *http.Request) {
 type Blog struct {
 	Thumbnail string
 	Title     string
+	Preview   string
 	Text      string
 	Id        string
 }
@@ -104,6 +105,8 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 				blo.Thumbnail = scanner.Text()
 			case 1:
 				blo.Title = scanner.Text()
+			case 2:
+				blo.Preview = scanner.Text()
 			default:
 				text = append(text, scanner.Text())
 			}
@@ -114,7 +117,7 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 	}
 
 	template := template.Must(template.ParseFiles("pages/blogs.html"))
-	responseData := map[string][]Blog {
+	responseData := map[string][]Blog{
 		"blogs": blogs,
 	}
 

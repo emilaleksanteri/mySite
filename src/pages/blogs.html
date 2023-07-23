@@ -7,39 +7,76 @@
 	<script src="https://unpkg.com/htmx.org@1.9.3"
 		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
 		crossorigin="anonymous"></script>
-	<!-- <link href="../dist/output.css" rel="stylesheet"> -->
 	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		#button:hover #animatedArrow {
+			animation: 1s 1 arrowRightLeft;
+		}
+
+		@keyframes arrowRightLeft {
+			0% {
+				right: 20px;
+			}
+			50% {
+				right: 5px;
+			}
+			100% {
+				right: 20px;
+			}
+		}
+
+
+	</style>
 </head>
 
 <body class="text-zinc-50 bg-zinc-800">
-	<div class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-between px-32 gap-2">
+	<div
+		class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-between px-32 gap-2">
 		<div class="flex items-center justify-center gap-2">
-		    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-			    stroke="rgb(244 244 245)" class="w-12 h-12">
-			    <path stroke-linecap="round" stroke-linejoin="round"
-				    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-		    </svg>
-		    <a href="/" class="text-3xl text-zinc-50 font-bold">Emil Lystimaki</a>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+				stroke="rgb(244 244 245)" class="w-12 h-12">
+				<path stroke-linecap="round" stroke-linejoin="round"
+					d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+			</svg>
+			<a href="/" class="text-3xl text-zinc-50 font-bold">Emil Lystimaki</a>
 		</div>
 		<ul class="flex items-center justify-center gap-10 text-xl">
-		    <li class="hover:text-sky-400">
-			<a href="/">Home</a>
-		    </li>
-		    <li class="hover:text-emerald-400">
-			<a href="/resume">Resume</a>
-		    </li>
+			<li class="hover:text-sky-400">
+				<a href="/">Home</a>
+			</li>
+			<li class="hover:text-emerald-400">
+				<a href="/resume">Resume</a>
+			</li>
 		</ul>
 	</div>
 	<section class="flex w-screen flex-col items-center justify-center">
 		<h2 class="my-8 text-2xl font-medium">Blogs</h2>
 		<ul class="w-full flex flex-col items-center">
-		{{ range .blogs }}
-			<li class="p-6 flex rounded-md drop-shadow-lg items-center justify-between w-[40%] border-2 border-zinc-100">
-				<p class="text-2xl font-medium">{{ .Title }}</p>
-				<img class="w-52 h-52 object-cover rounded-md" src={{ .Thumbnail }} href="Thumbnail for this blog..."/>
+			{{ range .blogs }}
+			<li class="p-6 flex rounded-md drop-shadow-lg items-stretch justify-between w-[40%] border-2 border-zinc-100 gap-8">
+				<div class="grid grid-cols-1 content-between gap-4">
+					<div class="flex flex-col gap-2 w-full">
+						<p class="text-2xl font-medium">{{ .Title }}</p>
+						<p class="">{{ .Preview }}</p>
+					</div>
+					<a href="/blog?id={{ .Id }}" id="button"
+					  class="relative flex items-center justify-between py-3 px-5 bg-zinc-100 text-zinc-800 w-[50%] rounded-md font-semibold stroke-zinc-800">
+						<p>Read Blog</p>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+							stroke-width="1.5" stroke="currentColor" id="animatedArrow" class="w-6 h-6 absolute right-5">
+							<path stroke-linecap="round" stroke-linejoin="round"
+								d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+						</svg>
+					</a>
+				</div>
+				<container class="w-[500px] h-[300px] object-cover rounded-md">
+					<img class="w-[500px] h-[300px] object-cover rounded-md" src={{ .Thumbnail }}
+						href="Thumbnail for this blog..." />
+				</container>
 			</li>
-		{{ end }}
+			{{ end }}
 		</ul>
 	</section>
 </body>
+
 </html>
