@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>{{ .Title }} 📝</title>
+	<title>{{ .TitleData }} 📝</title>
 	<script src="https://unpkg.com/htmx.org@1.9.3"
 		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
 		crossorigin="anonymous"></script>
@@ -23,7 +23,7 @@
 		</div>
 		<ul class="flex items-center justify-center gap-10 text-xl">
 			<li class="hover:text-sky-400">
-				<a href="/">Home</a>
+				<a href="/blogs">Blogs</a>
 			</li>
 			<li class="hover:text-emerald-400">
 				<a href="/resume">Resume</a>
@@ -32,10 +32,11 @@
 	</div>
 	<section class="flex w-screen flex-col items-center justify-center">
 		<container class="w-screen h-[300px] object-cover">
-			<img class="w-screen h-[300px] object-cover" src={{ .Thumbnail }} />
+			{{ .Thumbnail }}
 		</container>
-		<h2 class="my-10 text-3xl font-bold">{{ .Title }}</h2>
-		<p class="w-[50%]">{{ .Text }}</p>
+		<div>
+			{{ .Title }}
+		</div>
 	</section>
 </body>
 

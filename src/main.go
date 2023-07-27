@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"mysite/blogParser"
 )
 
 type Project struct {
@@ -90,33 +91,21 @@ func blog(res http.ResponseWriter, req *http.Request) {
 
 	defer openFile.Close()
 
-	blo := Blog{}
-	blo.Id = id
-
-	var text []string
+	var text string
 	scanner := bufio.NewScanner(openFile)
-	lineNum := 0
 	for scanner.Scan() {
-		switch lineNum {
-		case 0:
-			blo.Thumbnail = scanner.Text()
-		case 1:
-			blo.Title = scanner.Text()
-		case 2:
-			blo.Preview = scanner.Text()
-		default:
-			text = append(text, scanner.Text())
-		}
-		lineNum += 1
+		text += scanner.Text()
 	}
-	blo.Text = strings.Join(text, " ")
+
+	myBlog := blogParser.BlogText{}
+	myBlog.ParseMarkDown(text)
 
 	template := template.Must(template.ParseFiles("pages/blog.html"))
 	responseData := map[string]interface{}{
-		"Title": blo.Title,
-		"Id": blo.Id,
-		"Text": blo.Text,
-		"Thumbnail": blo.Thumbnail,
+		"Title": myBlog.Title,
+		"TitleText": myBlog.TitleData,
+		"Id": id,
+		"Thumbnail": myBlog.CoverPhoto,
 	}
 
 	template.Execute(res, responseData)
