@@ -1,7 +1,6 @@
 package blogParser
 
 import (
-	"fmt"
 	"html/template"
 )
 
@@ -15,8 +14,10 @@ type BlogText struct {
 	CoverPhoto template.HTML
 	Paragraphs []Paragraph
 	Input      string
-	Curr       int
+	CurrPos    int
+	Curr       byte
 	Next       int
+	Preview    template.HTML
 }
 
 const (
@@ -27,9 +28,10 @@ const (
 	LinkNameEnd   = '}'
 	Image         = '*'
 	Para          = '&'
-	Quote         = '$'
+	Quote         = '"'
 	CoverPhoto    = '@'
-	EOF           = ';'
+	Preview       = '$'
+	EOF           = 0
 )
 
 func (b *BlogText) ParseMarkDown(input string) {
@@ -38,43 +40,67 @@ func (b *BlogText) ParseMarkDown(input string) {
 		return
 	}
 
-	b.Curr = 0
-	for b.Input[b.Curr] != EOF {
-		switch b.Input[b.Curr] {
+	b.CurrPos = 0
+	b.Curr = b.Input[b.CurrPos]
+
+	for b.Curr != EOF {
+		switch b.Curr {
 		case '#':
 			b.parseTitle()
 		case '@':
 			b.parseCoverPhoto()
+		case '$':
+			b.parsePreview()
 		}
 	}
+}
 
+func (b *BlogText) nextByte() {
+	b.CurrPos += 1
+	if b.CurrPos >= len(b.Input) {
+		b.Curr = 0
+		return
+	}
+	b.Curr = b.Input[b.CurrPos]
 }
 
 func (b *BlogText) parseTitle() {
-	text := "<h2>"
+	text := "<h2 id='title'>"
 	var titleData string
-	b.Curr += 1
-	for b.Input[b.Curr] != Title {
-		text += string(b.Input[b.Curr])
-		titleData += string(b.Input[b.Curr])
-		b.Curr += 1
+	b.nextByte()
+	for b.Curr != Title {
+		text += string(b.Curr)
+		titleData += string(b.Curr)
+		b.nextByte()
 	}
-	b.Curr += 1
+	b.nextByte()
 	text += "</h2>"
 	b.Title = template.HTML(text)
 	b.TitleData = titleData
 }
 
+func (b *BlogText) parsePreview() {
+	b.nextByte()
+	preview := "<p id='preview'>"
+	for b.Curr != Preview {
+		preview += string(b.Curr)
+		b.nextByte()
+	}
+	b.nextByte()
+	preview += "</p>"
+	b.Preview = template.HTML(preview)
+}
+
 func (b *BlogText) parseParagraph() {}
 
 func (b *BlogText) parseCoverPhoto() {
-	b.Curr += 1
+	b.nextByte()
 	var url string
-	for b.Input[b.Curr] != CoverPhoto {
-		url += string(b.Input[b.Curr])
-		b.Curr += 1
+	for b.Curr != CoverPhoto {
+		url += string(b.Curr)
+		b.nextByte()
 	}
-	b.Curr += 1
+	b.nextByte()
 
 	imgElement := "<img id='cover' src=" + url + " alt='cover photo' />"
 	b.CoverPhoto = template.HTML(imgElement)

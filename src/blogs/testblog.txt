@@ -1,4 +1,4 @@
 #Test Blog#
 @https://res.cloudinary.com/duqbyobol/image/upload/v1690056006/samples/animals/cat.jpg@
-;
+$This blog is about how I solved some authentication issues for auth.js when using with our sveltekit client and custom separate store backend$
 

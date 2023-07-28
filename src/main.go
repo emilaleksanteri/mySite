@@ -6,10 +6,10 @@ import (
 	"html/template"
 	"io"
 	"io/ioutil"
+	"mysite/blogParser"
 	"net/http"
 	"os"
 	"strings"
-	"mysite/blogParser"
 )
 
 type Project struct {
@@ -67,10 +67,9 @@ func resume(res http.ResponseWriter, req *http.Request) {
 }
 
 type Blog struct {
-	Thumbnail string
-	Title     string
-	Preview   string
-	Text      string
+	Thumbnail template.HTML
+	Title     template.HTML
+	Preview   template.HTML
 	Id        string
 }
 
@@ -102,9 +101,9 @@ func blog(res http.ResponseWriter, req *http.Request) {
 
 	template := template.Must(template.ParseFiles("pages/blog.html"))
 	responseData := map[string]interface{}{
-		"Title": myBlog.Title,
+		"Title":     myBlog.Title,
 		"TitleText": myBlog.TitleData,
-		"Id": id,
+		"Id":        id,
 		"Thumbnail": myBlog.CoverPhoto,
 	}
 
@@ -125,9 +124,6 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 
 	var blogs []Blog
 	for _, blog := range files {
-		blo := Blog{}
-		blo.Id = blog.Name()
-
 		filePath := "blogs/" + blog.Name()
 		openFile, err := os.Open(filePath)
 		if err != nil {
@@ -135,23 +131,22 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 		}
 		defer openFile.Close()
 
-		var text []string
+		var text string
 		scanner := bufio.NewScanner(openFile)
-		lineNum := 0
 		for scanner.Scan() {
-			switch lineNum {
-			case 0:
-				blo.Thumbnail = scanner.Text()
-			case 1:
-				blo.Title = scanner.Text()
-			case 2:
-				blo.Preview = scanner.Text()
-			default:
-				text = append(text, scanner.Text())
-			}
-			lineNum += 1
+			text += scanner.Text()
 		}
-		blo.Text = strings.Join(text, " ")
+
+		myBlog := blogParser.BlogText{}
+		myBlog.ParseMarkDown(text)
+
+		blo := Blog{
+			Title: myBlog.Title, 
+			Preview: myBlog.Preview, 
+			Thumbnail: myBlog.CoverPhoto, 
+			Id: blog.Name(),
+		}
+
 		blogs = append(blogs, blo)
 	}
 
