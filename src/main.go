@@ -9,7 +9,6 @@ import (
 	"mysite/blogParser"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type Project struct {
