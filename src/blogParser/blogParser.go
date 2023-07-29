@@ -1,13 +1,17 @@
 package blogParser
 
 import (
-	"fmt"
 	"html/template"
 )
 
 type Paragraph struct {
 	Text     template.HTML
 	TextData string
+}
+
+type Link struct {
+	LinkText string
+	Link     string
 }
 
 type BlogText struct {
@@ -24,10 +28,10 @@ type BlogText struct {
 
 const (
 	Title         = '#'
-	LinkStart     = '['
-	LinkEnd       = ']'
-	LinkNameStart = '{'
-	LinkNameEnd   = '}'
+	LinkTextStart = '['
+	LinkTextEnd   = ']'
+	LinkStart     = '{'
+	LinkEnd       = '}'
 	Image         = '*'
 	Para          = '&'
 	Quote         = '"'
@@ -38,7 +42,7 @@ const (
 
 func (b *BlogText) ParseMarkDown(input string) {
 	b.Input = input
-	if len(b.Input) < 2 {
+	if len(b.Input) < 3 {
 		return
 	}
 
@@ -55,6 +59,9 @@ func (b *BlogText) ParseMarkDown(input string) {
 			b.parsePreview()
 		case Para:
 			b.parseParagraph()
+		default:
+			// don't wanna parse non markdown things
+			b.nextByte()
 		}
 	}
 }
@@ -101,7 +108,11 @@ func (b *BlogText) parseParagraph() {
 	for b.Curr != Para {
 		switch b.Curr {
 		case Quote:
-			fmt.Println("quote")
+			b.parseQuote(&paragraph)
+		case LinkTextStart:
+			b.parseLink(&paragraph)
+		case Image:
+			b.parseImage(&paragraph)
 		default:
 			paragraph.TextData += string(b.Curr)
 			b.nextByte()
@@ -112,6 +123,44 @@ func (b *BlogText) parseParagraph() {
 	paragraph.TextData += "</p>"
 	paragraph.Text = template.HTML(paragraph.TextData)
 	b.Paragraphs = append(b.Paragraphs, paragraph)
+}
+
+func (b *BlogText) parseLink(paragraph *Paragraph) {
+	link := Link{}
+	b.nextByte()
+
+	for b.Curr != LinkTextEnd {
+		link.LinkText += string(b.Curr)
+		b.nextByte()
+	}
+
+	b.nextByte()
+	if b.Curr != LinkStart {
+		link.Link = link.LinkText
+	} else {
+		b.nextByte()
+		for b.Curr != LinkEnd {
+			link.Link += string(b.Curr)
+			b.nextByte()
+		}
+		b.nextByte()
+	}
+
+	element := "<a id='link' href=" + link.Link + ">" + link.LinkText + "</a>"
+	paragraph.TextData += element
+}
+
+func (b *BlogText) parseQuote(paragraph *Paragraph) {
+	b.nextByte()
+	quote := "<p id='quote'>"
+	for b.Curr != Quote {
+		quote += string(b.Curr)
+		b.nextByte()
+	}
+
+	b.nextByte()
+	quote += "</p>"
+	paragraph.TextData += quote
 }
 
 func (b *BlogText) parseCoverPhoto() {
@@ -127,7 +176,18 @@ func (b *BlogText) parseCoverPhoto() {
 	b.CoverPhoto = template.HTML(imgElement)
 }
 
-func (b *BlogText) parseImage() {}
+func (b *BlogText) parseImage(paragraph *Paragraph) {
+	b.nextByte()
+	var url string
+	for b.Curr != Image {
+		url += string(b.Curr)
+		b.nextByte()
+	}
+
+	b.nextByte()
+	imgElement := "<img id='image' src=" + url + " alt='inline image' />"
+	paragraph.TextData += imgElement
+}
 
 // Goal:
 // Parse input line by line

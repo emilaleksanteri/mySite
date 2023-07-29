@@ -119,3 +119,87 @@ func TestParagraphs(t *testing.T) {
 		}
 	}
 }
+
+func TestQuoteInParagraph(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML string
+	}{
+		{`&Paragraph "quote" test&`, "<p id='paragraph'>Paragraph <p id='quote'>quote</p> test</p>"},
+		{`&This is my "quote" essay paragraph&`, "<p id='paragraph'>This is my <p id='quote'>quote</p> essay paragraph</p>"},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 1 {
+			t.Errorf("Expected just a single paragraph got=%T", len(blog.Paragraphs))
+		}
+
+		paragraph := blog.Paragraphs[0]
+		if paragraph.Text != template.HTML(tt.expectedHTML) {
+			t.Errorf("HTML did not match expected %q and got %q", tt.expectedHTML, string(paragraph.Text))
+		}
+	}
+}
+
+func TestLinkInParagraph(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML string
+	}{
+		{
+			`&Paragraph [link]{yomama.com} test&`,
+			"<p id='paragraph'>Paragraph <a id='link' href=yomama.com>link</a> test</p>",
+		},
+		{
+			`&This is my [yomama.com] essay paragraph&`,
+			"<p id='paragraph'>This is my <a id='link' href=yomama.com>yomama.com</a> essay paragraph</p>",
+		},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 1 {
+			t.Fatalf("Expected to get a single paragraph got=%T", len(blog.Paragraphs))
+		}
+
+		paragraph := blog.Paragraphs[0]
+		if paragraph.Text != template.HTML(tt.expectedHTML) {
+			t.Fatalf("Blog html does not match expected %q got=%q", tt.expectedHTML, string(paragraph.Text))
+		}
+	}
+}
+
+func TestImageParagraph(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML string
+	}{
+		{
+			`&Paragraph *cat.png* test&`,
+			"<p id='paragraph'>Paragraph <img id='image' src=cat.png alt='inline image' /> test</p>",
+		},
+		{
+			`&This is my *inline.jpg* essay paragraph&`,
+			"<p id='paragraph'>This is my <img id='image' src=inline.jpg alt='inline image' /> essay paragraph</p>",
+		},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 1 {
+			t.Fatalf("Expected to get a single paragraph got=%T", len(blog.Paragraphs))
+		}
+
+		paragraph := blog.Paragraphs[0]
+		if paragraph.Text != template.HTML(tt.expectedHTML) {
+			t.Fatalf("Blog html does not match expected %q got=%q", tt.expectedHTML, string(paragraph.Text))
+		}
+	}
+}
