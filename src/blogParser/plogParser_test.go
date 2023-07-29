@@ -66,3 +66,56 @@ func TestPreview(t *testing.T) {
 		}
 	}
 }
+
+func TestParagraph(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML string
+	}{
+		{"&Paragraph test&", "<p id='paragraph'>Paragraph test</p>"},
+		{"&This is my essay paragraph&", "<p id='paragraph'>This is my essay paragraph</p>"},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 1 {
+			t.Fatalf("Expectd blog paragrapsh to be length 1, got=%T", len(blog.Paragraphs))
+		}
+		paragraph := blog.Paragraphs[0].Text
+		if paragraph != template.HTML(tt.expectedHTML) {
+			t.Fatalf("paragraph did not match the expected %q got=%q", tt.expectedHTML, string(paragraph))
+		}
+	}
+}
+
+func TestParagraphs(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML []string
+	}{
+		{
+			"&Paragraph test&&Paragraph test&",
+			[]string{"<p id='paragraph'>Paragraph test</p>", "<p id='paragraph'>Paragraph test</p>"}},
+		{
+			"&This is my essay paragraph&&This is my essay paragraph&",
+			[]string{"<p id='paragraph'>This is my essay paragraph</p>", "<p id='paragraph'>This is my essay paragraph</p>"}},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 2 {
+			t.Fatalf("Expectd blog paragrapsh to be length 1, got=%T", len(blog.Paragraphs))
+		}
+
+		for i, para := range blog.Paragraphs {
+			paragraph := para.Text
+			if paragraph != template.HTML(tt.expectedHTML[i]) {
+				t.Fatalf("paragraph did not match the expected %q got=%q", tt.expectedHTML[i], string(paragraph))
+			}
+		}
+	}
+}

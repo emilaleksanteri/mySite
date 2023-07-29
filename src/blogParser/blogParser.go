@@ -1,11 +1,13 @@
 package blogParser
 
 import (
+	"fmt"
 	"html/template"
 )
 
 type Paragraph struct {
-	Text template.HTML
+	Text     template.HTML
+	TextData string
 }
 
 type BlogText struct {
@@ -45,12 +47,14 @@ func (b *BlogText) ParseMarkDown(input string) {
 
 	for b.Curr != EOF {
 		switch b.Curr {
-		case '#':
+		case Title:
 			b.parseTitle()
-		case '@':
+		case CoverPhoto:
 			b.parseCoverPhoto()
-		case '$':
+		case Preview:
 			b.parsePreview()
+		case Para:
+			b.parseParagraph()
 		}
 	}
 }
@@ -91,7 +95,24 @@ func (b *BlogText) parsePreview() {
 	b.Preview = template.HTML(preview)
 }
 
-func (b *BlogText) parseParagraph() {}
+func (b *BlogText) parseParagraph() {
+	b.nextByte()
+	paragraph := Paragraph{TextData: "<p id='paragraph'>"}
+	for b.Curr != Para {
+		switch b.Curr {
+		case Quote:
+			fmt.Println("quote")
+		default:
+			paragraph.TextData += string(b.Curr)
+			b.nextByte()
+		}
+	}
+
+	b.nextByte()
+	paragraph.TextData += "</p>"
+	paragraph.Text = template.HTML(paragraph.TextData)
+	b.Paragraphs = append(b.Paragraphs, paragraph)
+}
 
 func (b *BlogText) parseCoverPhoto() {
 	b.nextByte()
