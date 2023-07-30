@@ -66,6 +66,30 @@ func (b *BlogText) ParseMarkDown(input string) {
 	}
 }
 
+func (b *BlogText) ParseMarkdownPreview(input string) {
+	b.Input = input
+	if len(b.Input) < 3 {
+		return
+	}
+
+	b.CurrPos = 0
+	b.Curr = b.Input[b.CurrPos]
+
+	for b.Curr != EOF {
+		switch b.Curr {
+		case Title:
+			b.parseTitle()
+		case CoverPhoto:
+			b.parseCoverPhoto()
+		case Preview:
+			b.parsePreview()
+		default:
+			b.nextByte()
+		}
+	}
+
+}
+
 func (b *BlogText) nextByte() {
 	b.CurrPos += 1
 	if b.CurrPos >= len(b.Input) {

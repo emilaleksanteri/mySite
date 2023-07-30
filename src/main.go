@@ -84,7 +84,7 @@ func blog(res http.ResponseWriter, req *http.Request) {
 	fileName := "blogs/" + id
 	openFile, err := os.Open(fileName)
 	if err != nil {
-		fmt.Errorf("Not able to read file at=%T", fileName)
+		fmt.Println("Not able to read file", fileName)
 	}
 
 	defer openFile.Close()
@@ -100,10 +100,11 @@ func blog(res http.ResponseWriter, req *http.Request) {
 
 	template := template.Must(template.ParseFiles("pages/blog.html"))
 	responseData := map[string]interface{}{
-		"Title":     myBlog.Title,
-		"TitleText": myBlog.TitleData,
-		"Id":        id,
-		"Thumbnail": myBlog.CoverPhoto,
+		"Title":      myBlog.Title,
+		"TitleText":  myBlog.TitleData,
+		"Id":         id,
+		"Thumbnail":  myBlog.CoverPhoto,
+		"Paragraphs": myBlog.Paragraphs,
 	}
 
 	template.Execute(res, responseData)
@@ -118,7 +119,7 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 
 	files, err := ioutil.ReadDir("blogs")
 	if err != nil {
-		fmt.Errorf("No blogs in blogs dir")
+		fmt.Println("No blogs in blogs dir")
 	}
 
 	var blogs []Blog
@@ -126,7 +127,7 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 		filePath := "blogs/" + blog.Name()
 		openFile, err := os.Open(filePath)
 		if err != nil {
-			fmt.Errorf("Not able to read file at=%T", filePath)
+			fmt.Println("Not able to read file at", filePath)
 		}
 		defer openFile.Close()
 
@@ -137,13 +138,13 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 		}
 
 		myBlog := blogParser.BlogText{}
-		myBlog.ParseMarkDown(text)
+		myBlog.ParseMarkdownPreview(text)
 
 		blo := Blog{
-			Title: myBlog.Title, 
-			Preview: myBlog.Preview, 
-			Thumbnail: myBlog.CoverPhoto, 
-			Id: blog.Name(),
+			Title:     myBlog.Title,
+			Preview:   myBlog.Preview,
+			Thumbnail: myBlog.CoverPhoto,
+			Id:        blog.Name(),
 		}
 
 		blogs = append(blogs, blo)
@@ -186,7 +187,7 @@ func seeMore(res http.ResponseWriter, req *http.Request) {
 
 	ids, err := req.URL.Query()["id"]
 	if err {
-		fmt.Errorf("Id missing from url params!")
+		fmt.Println("Id missing from url params!")
 	}
 
 	id := ids[0]
@@ -237,11 +238,6 @@ func hello(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	// TOTO PLAN
-	// 1. markdown to html parser
-	// 2. pass blog markdown files through parser to get HTML
-	// 3. serve html into page
-
 	fileServe := http.FileServer(http.Dir("."))
 	http.Handle("/pages", http.StripPrefix("/", fileServe))
 

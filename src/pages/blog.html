@@ -3,11 +3,24 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>{{ .TitleData }} 📝</title>
+	<title>{{ .TitleText }} 📝</title>
 	<script src="https://unpkg.com/htmx.org@1.9.3"
 		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
 		crossorigin="anonymous"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		#cover {
+			object-fit: cover;
+			width: 100vw;
+			height: 400px;
+		}
+
+		#link {
+			color: rgb(6 182 212);
+			text-decoration-line: underline;
+			text-decoration-color: #06b6d4;
+		}
+	</style>
 </head>
 
 <body class="text-zinc-50 bg-zinc-800">
@@ -30,12 +43,19 @@
 			</li>
 		</ul>
 	</div>
-	<section class="flex w-screen flex-col items-center justify-center">
-		<container class="w-screen h-[300px] object-cover">
+	<section class="flex w-screen flex-col gap-4">
+		<container class="w-screen h-[400px] object-cover">
 			{{ .Thumbnail }}
 		</container>
-		<div>
+		<div class="text-2xl font-bold w-full flex items-center justify-center mt-10">
 			{{ .Title }}
+		</div>
+		<div class="mt-10 pb-20">
+		{{ range .Paragraphs }}
+		<div class="mx-48">
+			{{ .Text }}
+		</div>
+		{{ end }}
 		</div>
 	</section>
 </body>
