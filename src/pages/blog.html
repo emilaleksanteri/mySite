@@ -20,6 +20,30 @@
 			text-decoration-line: underline;
 			text-decoration-color: #06b6d4;
 		}
+
+		#imageWithText {
+			display: flex;
+			align-items: center;
+			justify-items: center;
+			flex-flow: column;
+			margin-top: 2rem;
+			margin-bottom: 2rem;
+		}
+
+		#blockText {
+			font-style: italic;
+			width: 100%;
+			font-weight: 500;
+			padding: 1rem;
+			background-color: rgb(68 64 60);
+			width: 30vw;
+		}
+
+		#image {
+			width: 30vw;
+			height: 30vh;
+			object-fit: cover;
+		}
 	</style>
 </head>
 
@@ -51,11 +75,11 @@
 			{{ .Title }}
 		</div>
 		<div class="mt-10 pb-20">
-		{{ range .Paragraphs }}
-		<div class="mx-48">
-			{{ .Text }}
-		</div>
-		{{ end }}
+			{{ range .Paragraphs }}
+			<div class="mx-48">
+				{{ .Text }}
+			</div>
+			{{ end }}
 		</div>
 	</section>
 </body>
