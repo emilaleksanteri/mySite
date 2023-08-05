@@ -37,6 +37,7 @@ const (
 	Quote         = '"'
 	CoverPhoto    = '@'
 	Preview       = '$'
+	ImageWithText = '+'
 	EOF           = 0
 )
 
@@ -93,10 +94,18 @@ func (b *BlogText) ParseMarkdownPreview(input string) {
 func (b *BlogText) nextByte() {
 	b.CurrPos += 1
 	if b.CurrPos >= len(b.Input) {
-		b.Curr = 0
+		b.Curr = EOF
 		return
 	}
 	b.Curr = b.Input[b.CurrPos]
+}
+
+func (b *BlogText) peakNext() byte {
+	if len(b.Input) <= b.CurrPos+1 {
+		return EOF
+	}
+	nextVal := b.Input[b.CurrPos+1]
+	return nextVal
 }
 
 func (b *BlogText) parseTitle() {
@@ -137,6 +146,8 @@ func (b *BlogText) parseParagraph() {
 			b.parseLink(&paragraph)
 		case Image:
 			b.parseImage(&paragraph)
+		case ImageWithText:
+			b.parseImageWithText(&paragraph)
 		default:
 			paragraph.TextData += string(b.Curr)
 			b.nextByte()
@@ -147,6 +158,30 @@ func (b *BlogText) parseParagraph() {
 	paragraph.TextData += "</p>"
 	paragraph.Text = template.HTML(paragraph.TextData)
 	b.Paragraphs = append(b.Paragraphs, paragraph)
+}
+
+func (b *BlogText) parseImageWithText(paragraph *Paragraph) {
+	block := "<div id='imageWithText'>"
+	blockText := "<p id='blockText'>"
+	b.nextByte()
+
+	paragraph.TextData += block
+
+	for b.Curr != ImageWithText {
+		switch b.Curr {
+		case Image:
+			b.parseImage(paragraph)
+		default:
+			blockText += string(b.Curr)
+			if b.peakNext() == Image || b.peakNext() == ImageWithText {
+				blockText += "</p>"
+				paragraph.TextData += blockText
+			}
+			b.nextByte()
+		}
+	}
+	b.nextByte()
+	paragraph.TextData += "</div>"
 }
 
 func (b *BlogText) parseLink(paragraph *Paragraph) {
@@ -212,15 +247,3 @@ func (b *BlogText) parseImage(paragraph *Paragraph) {
 	imgElement := "<img id='image' src=" + url + " alt='inline image' />"
 	paragraph.TextData += imgElement
 }
-
-// Goal:
-// Parse input line by line
-// Have case for each type of markup token
-// Depending on token type, add correct HTML with style to Title or make a Paragraph object
-// If paragraph contains a link, place an <a> tag into the paragraph
-// Final output should be a title in HTML
-// And an array of paragrapsh in HTML
-
-// 1. Input titles into HTML succesfully
-// 2. Parse input paragraphs into a paragraph struct succesfully
-// 3. Combine

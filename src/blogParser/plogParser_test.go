@@ -1,6 +1,7 @@
 package blogParser
 
 import (
+	"fmt"
 	"html/template"
 	"testing"
 )
@@ -201,5 +202,36 @@ func TestImageParagraph(t *testing.T) {
 		if paragraph.Text != template.HTML(tt.expectedHTML) {
 			t.Fatalf("Blog html does not match expected %q got=%q", tt.expectedHTML, string(paragraph.Text))
 		}
+	}
+}
+
+func TestImageWithTextParagraph(t *testing.T) {
+	tests := []struct {
+		input        string
+		expectedHTML string
+	}{
+		{
+			`&Paragraph +*cat.png*Image of a cat+ test&`,
+			"<p id='paragraph'>Paragraph <div id='imageWithText'><img id='image' src=cat.png alt='inline image' /><p id='blockText'>Image of a cat</p></div> test</p>",
+		},
+		{
+			`&This is my +Inline photo*inline.jpg*+ essay paragraph&`,
+			"<p id='paragraph'>This is my <div id='imageWithText'><p id='blockText'>Inline photo</p><img id='image' src=inline.jpg alt='inline image' /></div> essay paragraph</p>",
+		},
+	}
+
+	for _, tt := range tests {
+		blog := BlogText{}
+		blog.ParseMarkDown(tt.input)
+
+		if len(blog.Paragraphs) != 1 {
+			t.Fatalf("Expected to get a single paragraph got=%T", len(blog.Paragraphs))
+		}
+
+		paragraph := blog.Paragraphs[0]
+		if paragraph.Text != template.HTML(tt.expectedHTML) {
+			t.Fatalf("Blog html does not match expected %q got=%q", tt.expectedHTML, string(paragraph.Text))
+		}
+		fmt.Println(string(paragraph.Text))
 	}
 }
