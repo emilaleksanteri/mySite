@@ -48,10 +48,35 @@ func getProjectById(id string) Project {
 	return project
 }
 
+type Error struct {
+	Error    int
+	ErrorMsg string
+}
+
+func displayError(res http.ResponseWriter, req *http.Request, error *Error) {
+	res.Header().Set(
+		"Content-Type",
+		"text/html",
+	)
+	template := template.Must(template.ParseFiles("pages/error.html"))
+	responseData := map[string]interface{}{
+		"Error":    error.Error,
+		"ErrorMsg": error.ErrorMsg,
+	}
+
+	template.Execute(res, responseData)
+}
+
 func resume(res http.ResponseWriter, req *http.Request) {
 	resume, err := os.Open("cv/emil-lystimaki-cv.pdf")
 	if err != nil {
 		fmt.Println("Could not get cv")
+		error := Error{
+			Error:    500,
+			ErrorMsg: "Could not get the CV :(",
+		}
+		displayError(res, req, &error)
+		return
 	}
 	defer resume.Close()
 
@@ -61,7 +86,12 @@ func resume(res http.ResponseWriter, req *http.Request) {
 	)
 	if _, err := io.Copy(res, resume); err != nil {
 		fmt.Println("Could not serve resume bruh moment")
-		res.WriteHeader(500)
+		error := Error{
+			Error:    500,
+			ErrorMsg: "Could not get the CV :(",
+		}
+		displayError(res, req, &error)
+		return
 	}
 }
 
@@ -85,6 +115,12 @@ func blog(res http.ResponseWriter, req *http.Request) {
 	openFile, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println("Not able to read file", fileName)
+		error := Error{
+			Error:    404,
+			ErrorMsg: "Could not find the blog you were looking for... :(",
+		}
+		displayError(res, req, &error)
+		return
 	}
 
 	defer openFile.Close()
@@ -120,6 +156,12 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 	files, err := ioutil.ReadDir("blogs")
 	if err != nil {
 		fmt.Println("No blogs in blogs dir")
+		error := Error{
+			Error:    404,
+			ErrorMsg: "There are no blogs to display, come back later when there are.",
+		}
+		displayError(res, req, &error)
+		return
 	}
 
 	var blogs []Blog
@@ -128,6 +170,12 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 		openFile, err := os.Open(filePath)
 		if err != nil {
 			fmt.Println("Not able to read file at", filePath)
+			error := Error{
+				Error:    500,
+				ErrorMsg: "Something went terribly wrong when trying to display blogs!",
+			}
+			displayError(res, req, &error)
+			return
 		}
 		defer openFile.Close()
 
@@ -185,11 +233,7 @@ func seeMore(res http.ResponseWriter, req *http.Request) {
 		"text/html",
 	)
 
-	ids, err := req.URL.Query()["id"]
-	if err {
-		fmt.Println("Id missing from url params!")
-	}
-
+	ids := req.URL.Query()["id"]
 	id := ids[0]
 
 	project := getProjectById(id)
@@ -234,19 +278,38 @@ func hello(res http.ResponseWriter, req *http.Request) {
 	}
 
 	template.Execute(res, mainPgData)
+}
 
+func serve(res http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	switch path {
+	case "/":
+		hello(res, req)
+	case "/seemore":
+		seeMore(res, req)
+	case "/seeless":
+		seeLess(res, req)
+	case "/blogs":
+		blogs(res, req)
+	case "/blog":
+		blog(res, req)
+	case "/resume":
+		resume(res, req)
+	default:
+		error := Error{
+			Error: 404,
+			ErrorMsg: "Page not found, wonder where it went!",
+		}
+		displayError(res, req, &error)
+	}
 }
 
 func main() {
 	fileServe := http.FileServer(http.Dir("."))
 	http.Handle("/pages", http.StripPrefix("/", fileServe))
 
-	http.HandleFunc("/", hello)
-	http.HandleFunc("/seemore", seeMore)
-	http.HandleFunc("/seeless", seeLess)
-	http.HandleFunc("/blogs", blogs)
-	http.HandleFunc("/resume", resume)
-	http.HandleFunc("/blog", blog)
+	http.HandleFunc("/", serve)
+	
 	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		fmt.Println(err)

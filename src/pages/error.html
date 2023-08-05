@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>{{ .Error }} ❌</title>
+	<script src="https://unpkg.com/htmx.org@1.9.3"
+		integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+
+	</style>
+</head>
+
+<body class="text-zinc-50 bg-zinc-800">
+	<div
+		class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-between px-32 gap-2">
+		<div class="flex items-center justify-center gap-2">
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+				stroke="rgb(244 244 245)" class="w-12 h-12">
+				<path stroke-linecap="round" stroke-linejoin="round"
+					d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+			</svg>
+			<a href="/" class="text-3xl text-zinc-50 font-bold">Emil Lystimaki</a>
+		</div>
+		<ul class="flex items-center justify-center gap-10 text-xl">
+			<li class="hover:text-sky-400">
+				<a href="/blogs">Blogs</a>
+			</li>
+			<li class="hover:text-emerald-400">
+				<a href="/resume">Resume</a>
+			</li>
+		</ul>
+	</div>
+	<section class="w-screen h-screen flex flex-col items-center mt-[15%] gap-8">
+		<h2 class="text-center font-bold text-6xl">Oopsie {{ .Error }} error occured</h2>
+		<p class="text-center font-medium text-3xl">{{ .ErrorMsg }}</p>
+	</section>
+</body>
+
+</html>
