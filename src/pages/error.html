@@ -9,7 +9,17 @@
 		crossorigin="anonymous"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<style>
+		@font-face {
+			font-family: "JetBrainsMono";
+			src: url("/static/fonts/JetBrainsMonoRegular.ttf");
+			src: local("JetBrainsMonoRegular"),
+				local("JetBrainsMonoRegular.ttf"),
+				url("/static/fonts/JetBrainsMonoRegular.ttf") format("truetype");
+		}
 
+		body {
+			font-family: JetBrainsMono;
+		}
 	</style>
 </head>
 

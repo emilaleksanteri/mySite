@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"mysite/blogParser"
 	"net/http"
 	"os"
@@ -24,11 +23,17 @@ func getProjectById(id string) Project {
 		{
 			ProjectTitle:    "chatApp",
 			ShortSummary:    "Live chat application built with the T3 stack",
-			LongDescription: "Currently building a hybrid clone thats based on WhatsApp and Discord for me and my friends to use. The project is written in TypeScript, using Next.js as the framework. The app uses MySQL as the database, tRPC for client to interact with the server in a type safe manner. I wanted to plau with some AI stuff with the chat application so currently the users can invite ChatGPT to be part of their conversation by tagging AI into the chat with @ai. The application connects to a separate WebSocket server I had made in TypeScript which is used to let users know who is typing and to invalidate the chats cache whenever a new message arrives in the chat. This also served as a gateway to play funny sounds to all chat participants with the press of a sound board button as part of the 'chatting experience'.",
+			LongDescription: "Currently building a hybrid clone thats based on WhatsApp and Discord for me and my friends to use. The project is written in TypeScript, using Next.js as the framework. The app uses MySQL as the database, tRPC for client to interact with the server in a type safe manner. I wanted to plau with some AI stuff with the chat application so currently the users can invite ChatGPT to be part of their conversation by tagging AI into the chat with @ai. The application connects to a separate WebSocket server I had made in TypeScript which is used to let users know who is typing and to invalidate the chats cache whenever a new message arrives in the chat. This also served as a gateway to play funny sounds to all chat participants with the press of a sound board button as part of the 'chatting experience'. I also built a WebSocket server that I deployed with fly.io, it is still very bare bones server, I am planning to redo it in Elixir or Rust once I have a bit of extra time.",
 			Id:              "chatapp",
 			Url:             "https://chat-app-tau-teal.vercel.app/",
 		},
-
+		{
+			ProjectTitle:    "BlogApp",
+			ShortSummary:    "A basic React CRUD app that uses a REST API to store and retrieve and share posts.",
+			LongDescription: "Application where people can post links to their favourite blogs.Users can then like and comment these on the application. Application supports CRUD, the backend is built on express and uses MongoDB, the front end is fully in React. For testing I used Jest and Cypress.",
+			Id:              "blogapp",
+			Url:             "https://github.com/emilaleksanteri/BlogApp",
+		},
 		{
 			ProjectTitle:    "HaikuForu",
 			ShortSummary:    "A website that generates Haikus with the use of AI",
@@ -68,7 +73,7 @@ func displayError(res http.ResponseWriter, req *http.Request, error *Error) {
 }
 
 func resume(res http.ResponseWriter, req *http.Request) {
-	resume, err := os.Open("cv/emil-lystimaki-cv.pdf")
+	resume, err := os.Open("cv/Emil-Lystimaki-CV.pdf")
 	if err != nil {
 		fmt.Println("Could not get cv")
 		error := Error{
@@ -153,7 +158,7 @@ func blogs(res http.ResponseWriter, req *http.Request) {
 		"text/html",
 	)
 
-	files, err := ioutil.ReadDir("blogs")
+	files, err := os.ReadDir("blogs")
 	if err != nil {
 		fmt.Println("No blogs in blogs dir")
 		error := Error{
@@ -258,11 +263,17 @@ func hello(res http.ResponseWriter, req *http.Request) {
 		{
 			ProjectTitle:    "chatApp",
 			ShortSummary:    "Live chat application built with the T3 stack",
-			LongDescription: "Currently building a hybrid clone thats based on WhatsApp and Discord for me and my friends to use. The project is written in TypeScript, using Next.js as the framework. The app uses MySQL as the database, tRPC for client to interact with the server in a type safe manner. I wanted to plau with some AI stuff with the chat application so currently the users can invite ChatGPT to be part of their conversation by tagging AI into the chat with @ai. The application connects to a separate WebSocket server I had made in TypeScript which is used to let users know who is typing and to invalidate the chats cache whenever a new message arrives in the chat. This also served as a gateway to play funny sounds to all chat participants with the press of a sound board button as part of the 'chatting experience'.",
+			LongDescription: "Currently building a hybrid clone thats based on WhatsApp and Discord for me and my friends to use. The project is written in TypeScript, using Next.js as the framework. The app uses MySQL as the database, tRPC for client to interact with the server in a type safe manner. I wanted to plau with some AI stuff with the chat application so currently the users can invite ChatGPT to be part of their conversation by tagging AI into the chat with @ai. The application connects to a separate WebSocket server I had made in TypeScript which is used to let users know who is typing and to invalidate the chats cache whenever a new message arrives in the chat. This also served as a gateway to play funny sounds to all chat participants with the press of a sound board button as part of the 'chatting experience'. I also built a WebSocket server that I deployed with fly.io, it is still very bare bones server, I am planning to redo it in Elixir or Rust once I have a bit of extra time.",
 			Id:              "chatapp",
 			Url:             "https://chat-app-tau-teal.vercel.app/",
 		},
-
+		{
+			ProjectTitle:    "BlogApp",
+			ShortSummary:    "A basic React CRUD app that uses a REST API to store and retrieve and share posts.",
+			LongDescription: "Application where people can post links to their favourite blogs.Users can then like and comment these on the application. Application supports CRUD, the backend is built on express and uses MongoDB, the front end is fully in React. For testing I used Jest and Cypress.",
+			Id:              "blogapp",
+			Url:             "https://github.com/emilaleksanteri/BlogApp",
+		},
 		{
 			ProjectTitle:    "HaikuForu",
 			ShortSummary:    "A website that generates Haikus with the use of AI",
@@ -297,7 +308,7 @@ func serve(res http.ResponseWriter, req *http.Request) {
 		resume(res, req)
 	default:
 		error := Error{
-			Error: 404,
+			Error:    404,
 			ErrorMsg: "Page not found, wonder where it went!",
 		}
 		displayError(res, req, &error)
@@ -309,7 +320,7 @@ func main() {
 	http.Handle("/pages", http.StripPrefix("/", fileServe))
 
 	http.HandleFunc("/", serve)
-	
+
 	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		fmt.Println(err)
