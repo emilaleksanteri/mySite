@@ -14,41 +14,50 @@
 			font-family: "JetBrainsMono";
 			src: url("/static/fonts/JetBrainsMonoRegular.ttf");
 			src: local("JetBrainsMonoRegular"),
-			     local("JetBrainsMonoRegular.ttf"),
-			      url("/static/fonts/JetBrainsMonoRegular.ttf") format("truetype");
+				local("JetBrainsMonoRegular.ttf"),
+				url("/static/fonts/JetBrainsMonoRegular.ttf") format("truetype");
 		}
 
-		body{ font-family: JetBrainsMono; }
+		body {
+			font-family: JetBrainsMono;
+		}
+
+		#CardBg {
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='%236200ff' fill-opacity='0.4'%3E%3Cpath d='M12 0h18v6h6v6h6v18h-6v6h-6v6H12v-6H6v-6H0V12h6V6h6V0zm12 6h-6v6h-6v6H6v6h6v6h6v6h6v-6h6v-6h6v-6h-6v-6h-6V6zm-6 12h6v6h-6v-6zm24 24h6v6h-6v-6z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+		}
 	</style>
 </head>
 
-<body class="text-zinc-50 bg-zinc-800">
-	<div class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-between px-32 gap-2">
+<body class="text-zinc-50 bg-zinc-800 mb-36">
+	<div
+		class="w-screen p-6 border-b-2 border-zinc-600 drop-shadow-lg flex items-center justify-between px-32 gap-2">
 		<div class="flex items-center justify-center gap-2">
-		    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-			    stroke="rgb(244 244 245)" class="w-12 h-12">
-			    <path stroke-linecap="round" stroke-linejoin="round"
-				    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-		    </svg>
-		    <a href="/" class="text-3xl text-zinc-50 font-bold">Emil Lystimaki</a>
+			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+				 class="w-12 h-12 stroke-sky-400">
+				<path stroke-linecap="round" stroke-linejoin="round"
+					d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+			</svg>
+			<a href="/" class="text-3xl font-bold uppercase text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">Emil Lystimaki</a>
 		</div>
 		<ul class="flex items-center justify-center gap-10 text-xl">
-		    <li class="hover:text-sky-400">
-			<a href="/blogs">Blogs</a>
-		    </li>
-		    <li class="hover:text-emerald-400">
-			<a href="/resume">Resume</a>
-		    </li>
+			<li class="hover:text-sky-400">
+				<a href="/blogs">Blogs</a>
+			</li>
+			<li class="hover:text-blue-600">
+				<a href="/resume">Resume</a>
+			</li>
 		</ul>
 	</div>
 	<div class="w-screen flex flex-col gap-10 items-center">
-		<h2 class="mt-10 text-2xl font-semibold mr-[36%]">
+		<h2 class="mt-10 text-2xl font-bold mr-[36%] uppercase underline decoration-sky-400">
 			Projects
 		</h2>
 		<ul class="flex flex-col gap-10 w-full items-center">
 			{{ range .projects }}
-			<li class="border-2 border-zinc-100 w-[40%] rounded-md p-4 drop-shadow-lg" id={{ .Id }}>
+			<li class="border-4 border-zinc-100 w-[40%] rounded-md p-4 drop-shadow-md flex flex-col gap-4" id={{ .Id }}>
+				<p id="CardBg" class="rounded-t-md -ml-4 -mr-4 -mt-4 h-28 drop-shadow-b-md bg-sky-300" />
 				<section class="flex flex-col gap-2">
+
 					<h3 class="text-xl font-medium mb-4">{{ .ProjectTitle }}</h3>
 					<p>{{ .ShortSummary }}</p>
 				</section>
