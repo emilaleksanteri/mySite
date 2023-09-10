@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"mysite/blogParser"
+	"github.com/emilaleksanteri/mySite/tree/main/src/blogParser"
 	"net/http"
 	"os"
 )
